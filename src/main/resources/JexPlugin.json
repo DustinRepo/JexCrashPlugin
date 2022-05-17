@@ -5,7 +5,8 @@
   "mixins": "crashplugin.mixins.json",
   "description": "Various server crashing methods. Pretty much copy + paste of Meteor Crash Addon",
   "authors": [
-    "untrusted",
+    "untrusted - port",
+    "0x150 - Most of the crashes",
     "AntiCope - Meteor Crash Addon"
   ],
   "required_mods": [
