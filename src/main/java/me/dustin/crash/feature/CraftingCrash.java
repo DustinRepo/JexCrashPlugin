@@ -21,8 +21,8 @@ import java.util.List;
 @Feature.Manifest(category = Feature.Category.MISC, description = "Spam craft request packets. Use with planks in inventory for best results.")
 public class CraftingCrash extends Feature {
 
-    @Op(name = "Packet Count", min = 1, max = 50, inc = 1)
-    public int packetCount = 24;
+    @Op(name = "Packet Count", min = 1, max = 100, inc = 1)
+    public int packetCount = 25;
     @Op(name = "Auto Disable")
     public boolean autoDisable = true;
 
