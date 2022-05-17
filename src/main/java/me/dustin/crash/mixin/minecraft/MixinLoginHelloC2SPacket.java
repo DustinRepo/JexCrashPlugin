@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(LoginHelloC2SPacket.class)
 public class MixinLoginHelloC2SPacket {
 
-    @Inject(method = "write", at = @At("HEAD"))
+    @Inject(method = "write", at = @At("HEAD"), cancellable = true)
     public void writePacket(PacketByteBuf buf, CallbackInfo ci) {
         EventWriteLoginHelloPacket eventWriteLoginHelloPacket = new EventWriteLoginHelloPacket(buf).run();
         if (eventWriteLoginHelloPacket.isCancelled())
