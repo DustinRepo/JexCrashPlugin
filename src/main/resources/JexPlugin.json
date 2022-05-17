@@ -1,0 +1,14 @@
+{
+  "name": "Crash Plugin",
+  "version": "1.0",
+  "mainClass": "me.dustin.crash.CrashPlugin",
+  "mixins": "crashplugin.mixins.json",
+  "description": "Various server crashing methods. Pretty much copy + paste of Meteor Crash Addon",
+  "authors": [
+    "untrusted",
+    "AntiCope - Meteor Crash Addon"
+  ],
+  "required_mods": [
+  ],
+  "allowDisable": true
+}

@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "compatibilityLevel": "JAVA_17",
+  "package": "me.dustin.crash.mixin",
+  "mixins": [
+    "MixinFeatureCategory",
+    "MixinHud",
+    "MixinLoginHelloC2SPacket"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
