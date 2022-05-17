@@ -1,4 +1,4 @@
-package me.dustin.crash.mixin;
+package me.dustin.crash.mixin.jex;
 
 import me.dustin.jex.feature.mod.core.Feature;
 import me.dustin.jex.feature.mod.impl.render.hud.Hud;
@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(value = Hud.class, remap = false)
 public class MixinHud {
 
-    @Inject(method = "getCategoryColor", at = @At("RETURN"), cancellable = true)
+    @Inject(method = "getCategoryColor", at = @At("HEAD"), cancellable = true)
     public void getCategoryColor(Feature.Category category, CallbackInfoReturnable<Integer> cir) {
         if (category.name().equals("CRASH"))
             cir.setReturnValue(0xffff0000);

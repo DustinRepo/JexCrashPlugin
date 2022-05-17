@@ -1,4 +1,4 @@
-package me.dustin.crash.mixin;
+package me.dustin.crash.mixin.jex;
 
 import me.dustin.jex.feature.mod.core.Feature;
 import org.spongepowered.asm.mixin.Final;

@@ -1,4 +1,4 @@
-package me.dustin.crash.mixin;
+package me.dustin.crash.mixin.minecraft;
 
 import me.dustin.crash.event.EventPlaySound;
 import net.minecraft.client.sound.SoundInstance;
@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class MixinSoundSystem {
     @Inject(method = "play(Lnet/minecraft/client/sound/SoundInstance;)V", at = @At("HEAD"), cancellable = true)
     private void onPlay(SoundInstance soundInstance, CallbackInfo ci) {
-        EventPlaySound eventPlaySound = new EventPlaySound(soundInstance.getId());
+        EventPlaySound eventPlaySound = new EventPlaySound(soundInstance.getId()).run();
         if (eventPlaySound.isCancelled())
             ci.cancel();
     }
