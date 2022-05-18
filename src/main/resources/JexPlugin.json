@@ -4,6 +4,7 @@
   "mainClass": "me.dustin.crash.CrashPlugin",
   "mixins": "crashplugin.mixins.json",
   "description": "Various server crashing methods. Pretty much copy + paste of Meteor Crash Addon",
+  "icon": "assets/crash/icon.png",
   "authors": [
     "untrusted - port",
     "0x150 - Most of the crashes",
