@@ -1,4 +1,4 @@
-package me.dustin.crash.mixin;
+package me.dustin.crash.mixin.impl;
 
 import me.dustin.crash.event.EventPlaySound;
 import net.minecraft.client.sound.SoundInstance;

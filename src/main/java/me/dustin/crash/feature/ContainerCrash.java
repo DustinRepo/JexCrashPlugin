@@ -2,6 +2,7 @@ package me.dustin.crash.feature;
 
 import me.dustin.crash.CrashPlugin;
 import me.dustin.crash.event.EventPlaySound;
+import me.dustin.crash.mixin.interf.IWorldClient;
 import me.dustin.events.core.EventListener;
 import me.dustin.events.core.annotate.EventPointer;
 import me.dustin.jex.event.filters.KeyPressFilter;
@@ -51,7 +52,8 @@ public class ContainerCrash extends Feature {
                     Block block = WorldHelper.INSTANCE.getBlock(blockPos);
                     if (block instanceof AbstractChestBlock<?> || block instanceof ShulkerBoxBlock) {
                         BlockHitResult bhr = new BlockHitResult(new Vec3d(blockPos.getX(), blockPos.getY(), blockPos.getZ()), Direction.DOWN, blockPos, false);
-                        PlayerInteractBlockC2SPacket openPacket = new PlayerInteractBlockC2SPacket(Hand.MAIN_HAND, bhr);
+                        int sequence = ((IWorldClient)Wrapper.INSTANCE.getWorld()).getPendingUpdateManager().incrementSequence().getSequence();
+                        PlayerInteractBlockC2SPacket openPacket = new PlayerInteractBlockC2SPacket(Hand.MAIN_HAND, bhr, sequence);
                         for (int i = 0; i < packetCount; i++) {
                             NetworkHelper.INSTANCE.sendPacket(openPacket);
                         }

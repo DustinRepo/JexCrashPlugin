@@ -78,7 +78,7 @@ public class MessageLagger extends Feature {
         PlayerEntity player = players.get(new Random().nextInt(players.size()));
         String message = generateLagMessage();
 
-        Wrapper.INSTANCE.getLocalPlayer().sendChatMessage("/msg " + player.getGameProfile().getName() + " " + message);
+        Wrapper.INSTANCE.getLocalPlayer().sendCommand("msg %s %s".formatted(player.getGameProfile().getName(), message));
     }
 
     private String generateLagMessage() {
