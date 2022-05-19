@@ -1,5 +1,6 @@
 package me.dustin.crash.feature;
 
+import me.dustin.crash.CrashPlugin;
 import me.dustin.events.core.EventListener;
 import me.dustin.events.core.annotate.EventPointer;
 import me.dustin.jex.event.filters.PlayerPacketsFilter;
@@ -16,7 +17,6 @@ import net.minecraft.util.math.Vec3d;
 
 import java.util.Random;
 
-@Feature.Manifest(category = Feature.Category.MISC, description = "Tries to crash the server by spamming move packets. (By 0x150)")
 public class MoveCrash extends Feature {
 
     @Op(name = "Packet Count", min = 1, max = 10000, inc = 10)
@@ -25,7 +25,7 @@ public class MoveCrash extends Feature {
     public boolean autoDisable = true;
 
     public MoveCrash() {
-        setFeatureCategory(Category.valueOf("CRASH"));
+        super(CrashPlugin.CRASH, "Tries to crash the server by spamming move packets. (By 0x150)");
     }
 
     @EventPointer

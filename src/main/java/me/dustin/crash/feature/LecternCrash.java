@@ -1,6 +1,7 @@
 package me.dustin.crash.feature;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMaps;
+import me.dustin.crash.CrashPlugin;
 import me.dustin.events.core.EventListener;
 import me.dustin.events.core.annotate.EventPointer;
 import me.dustin.jex.event.filters.SetScreenFilter;
@@ -12,11 +13,10 @@ import net.minecraft.client.gui.screen.ingame.LecternScreen;
 import net.minecraft.network.packet.c2s.play.ClickSlotC2SPacket;
 import net.minecraft.screen.slot.SlotActionType;
 
-@Feature.Manifest(category = Feature.Category.MISC, description = "Sends a funny packet when you open a lectern")
 public class LecternCrash extends Feature {
 
     public LecternCrash() {
-        setFeatureCategory(Category.valueOf("CRASH"));
+        super(CrashPlugin.CRASH, "Sends a funny packet when you open a lectern");
     }
 
     @EventPointer

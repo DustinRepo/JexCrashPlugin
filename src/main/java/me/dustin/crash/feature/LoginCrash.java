@@ -1,5 +1,6 @@
 package me.dustin.crash.feature;
 
+import me.dustin.crash.CrashPlugin;
 import me.dustin.crash.event.EventWriteLoginHelloPacket;
 import me.dustin.events.core.EventListener;
 import me.dustin.events.core.annotate.EventPointer;
@@ -8,15 +9,13 @@ import me.dustin.jex.feature.option.annotate.Op;
 
 import java.util.Random;
 
-@Feature.Manifest(category = Feature.Category.MISC, description = "Tries to crash the server on login using null packets. (By 0x150)")
 public class LoginCrash extends Feature {
 
     @Op(name = "Mode", all = {"Normal", "Test"})
     public String mode = "Normal";
 
     public LoginCrash() {
-        super();
-        setFeatureCategory(Category.valueOf("CRASH"));
+        super(CrashPlugin.CRASH, "Tries to crash the server on login using null packets. (By 0x150)");
     }
 
     @EventPointer

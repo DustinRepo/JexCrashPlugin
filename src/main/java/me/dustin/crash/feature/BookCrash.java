@@ -1,5 +1,6 @@
 package me.dustin.crash.feature;
 
+import me.dustin.crash.CrashPlugin;
 import me.dustin.events.core.EventListener;
 import me.dustin.events.core.annotate.EventPointer;
 import me.dustin.jex.event.filters.PlayerPacketsFilter;
@@ -22,7 +23,6 @@ import net.minecraft.network.packet.c2s.play.CreativeInventoryActionC2SPacket;
 import java.util.ArrayList;
 import java.util.Optional;
 
-@Feature.Manifest(category = Feature.Category.MISC, description = "Tries to crash the server by sending bad book sign packets.")
 public class BookCrash extends Feature {
 
     @Op(name = "Packet", all = {"BookUpdate", "CreativeAction"})
@@ -35,7 +35,7 @@ public class BookCrash extends Feature {
     private final BoatPaddleStateC2SPacket PACKET = new BoatPaddleStateC2SPacket(true, true);
 
     public BookCrash() {
-        setFeatureCategory(Category.valueOf("CRASH"));
+        super(CrashPlugin.CRASH, "Tries to crash the server by sending bad book sign packets.");
     }
 
     @EventPointer

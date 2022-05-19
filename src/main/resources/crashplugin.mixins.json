@@ -4,10 +4,8 @@
   "compatibilityLevel": "JAVA_17",
   "package": "me.dustin.crash.mixin",
   "mixins": [
-    "jex.MixinFeatureCategory",
-    "jex.MixinHud",
-    "minecraft.MixinLoginHelloC2SPacket",
-    "minecraft.MixinSoundSystem"
+    "MixinLoginHelloC2SPacket",
+    "MixinSoundSystem"
   ],
   "injectors": {
     "defaultRequire": 1

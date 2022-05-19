@@ -1,4 +1,4 @@
-package me.dustin.crash.mixin.minecraft;
+package me.dustin.crash.mixin;
 
 import me.dustin.crash.event.EventWriteLoginHelloPacket;
 import net.minecraft.network.PacketByteBuf;

@@ -1,5 +1,6 @@
 package me.dustin.crash.feature;
 
+import me.dustin.crash.CrashPlugin;
 import me.dustin.events.core.EventListener;
 import me.dustin.events.core.annotate.EventPointer;
 import me.dustin.jex.event.filters.PlayerPacketsFilter;
@@ -13,7 +14,6 @@ import me.dustin.jex.helper.misc.Wrapper;
 import me.dustin.jex.helper.network.NetworkHelper;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 
-@Feature.Manifest(category = Feature.Category.MISC, description = "Attempts to crash the server by sending invalid position packets. (may freeze or kick you)")
 public class InvalidPosCrash extends Feature {
 
     @Op(name = "Mode", all = {"Twenty Million", "Infinity", "TP", "Velt", "Switch"})
@@ -25,7 +25,7 @@ public class InvalidPosCrash extends Feature {
 
     private boolean switchBl = false;
     public InvalidPosCrash() {
-        setFeatureCategory(Category.valueOf("CRASH"));
+        super(CrashPlugin.CRASH, "Attempts to crash the server by sending invalid position packets. (may freeze or kick you)");
     }
 
     @Override

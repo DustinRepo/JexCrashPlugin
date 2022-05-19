@@ -1,5 +1,6 @@
 package me.dustin.crash.feature;
 
+import me.dustin.crash.CrashPlugin;
 import me.dustin.events.core.EventListener;
 import me.dustin.events.core.annotate.EventPointer;
 import me.dustin.jex.event.filters.PlayerPacketsFilter;
@@ -17,7 +18,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import java.util.List;
 import java.util.Random;
 
-@Feature.Manifest(category = Feature.Category.MISC, description = "Sends dense messages that lag other players on the server.")
 public class MessageLagger extends Feature {
 
     @Op(name = "Message length", min = 1, max = 1000)
@@ -33,7 +33,7 @@ public class MessageLagger extends Feature {
 
     private final StopWatch stopWatch = new StopWatch();
     public MessageLagger() {
-        setFeatureCategory(Category.valueOf("CRASH"));
+        super(CrashPlugin.CRASH, "Sends dense messages that lag other players on the server.");
     }
 
     @Override

@@ -1,5 +1,6 @@
 package me.dustin.crash.feature;
 
+import me.dustin.crash.CrashPlugin;
 import me.dustin.events.core.EventListener;
 import me.dustin.events.core.annotate.EventPointer;
 import me.dustin.jex.event.filters.PlayerPacketsFilter;
@@ -12,7 +13,6 @@ import me.dustin.jex.helper.misc.Wrapper;
 import me.dustin.jex.helper.network.NetworkHelper;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 
-@Feature.Manifest(category = Feature.Category.MISC, description = "Crash servers with AAC")
 public class AACCrash extends Feature {
 
     @Op(name = "Mode", all = {"New", "Other", "Old"})
@@ -25,7 +25,7 @@ public class AACCrash extends Feature {
     public boolean autoDisable = true;
 
     public AACCrash() {
-        setFeatureCategory(Category.valueOf("CRASH"));
+        super(CrashPlugin.CRASH, "Crash servers with AAC");
     }
 
     @Override

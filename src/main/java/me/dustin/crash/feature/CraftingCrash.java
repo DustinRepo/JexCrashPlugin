@@ -1,5 +1,6 @@
 package me.dustin.crash.feature;
 
+import me.dustin.crash.CrashPlugin;
 import me.dustin.events.core.EventListener;
 import me.dustin.events.core.annotate.EventPointer;
 import me.dustin.jex.event.filters.PlayerPacketsFilter;
@@ -18,7 +19,6 @@ import net.minecraft.screen.CraftingScreenHandler;
 
 import java.util.List;
 
-@Feature.Manifest(category = Feature.Category.MISC, description = "Spam craft request packets. Use with planks in inventory for best results.")
 public class CraftingCrash extends Feature {
 
     @Op(name = "Packet Count", min = 1, max = 100, inc = 1)
@@ -27,7 +27,7 @@ public class CraftingCrash extends Feature {
     public boolean autoDisable = true;
 
     public CraftingCrash() {
-        setFeatureCategory(Category.valueOf("CRASH"));
+        super(CrashPlugin.CRASH, "Spam craft request packets. Use with planks in inventory for best results.");
     }
 
     @EventPointer

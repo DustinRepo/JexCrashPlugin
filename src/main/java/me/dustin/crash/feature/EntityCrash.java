@@ -1,5 +1,6 @@
 package me.dustin.crash.feature;
 
+import me.dustin.crash.CrashPlugin;
 import me.dustin.events.core.EventListener;
 import me.dustin.events.core.annotate.EventPointer;
 import me.dustin.jex.event.filters.PlayerPacketsFilter;
@@ -15,7 +16,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.network.packet.c2s.play.VehicleMoveC2SPacket;
 import net.minecraft.util.math.Vec3d;
 
-@Feature.Manifest(category = Feature.Category.MISC, description = "Tries to crash the server when you are riding an entity. (By 0x150)")
 public class EntityCrash extends Feature {
 
     @Op(name = "Speed", min = 1, max = 10000, inc = 100)
@@ -26,7 +26,7 @@ public class EntityCrash extends Feature {
     public boolean autoDisable = true;
 
     public EntityCrash() {
-        setFeatureCategory(Category.valueOf("CRASH"));
+        super(CrashPlugin.CRASH, "Tries to crash the server when you are riding an entity. (By 0x150)");
     }
 
     @EventPointer

@@ -1,5 +1,6 @@
 package me.dustin.crash.feature;
 
+import me.dustin.crash.CrashPlugin;
 import me.dustin.events.core.EventListener;
 import me.dustin.events.core.annotate.EventPointer;
 import me.dustin.jex.event.filters.PlayerPacketsFilter;
@@ -20,7 +21,6 @@ import net.minecraft.util.math.Vec3d;
 
 import java.util.Random;
 
-@Feature.Manifest(category = Feature.Category.MISC, description = "Crashes vanilla and Spigot servers")
 public class NoComCrash extends Feature {
 
     @Op(name = "Packet Count", min = 1, max = 100, inc = 10)
@@ -31,7 +31,7 @@ public class NoComCrash extends Feature {
     private final Random r = new Random();
 
     public NoComCrash() {
-        setFeatureCategory(Category.valueOf("CRASH"));
+        super(CrashPlugin.CRASH, "Crashes vanilla and Spigot servers");
     }
 
     @EventPointer

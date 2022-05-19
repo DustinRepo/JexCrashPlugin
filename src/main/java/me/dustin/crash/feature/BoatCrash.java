@@ -1,5 +1,6 @@
 package me.dustin.crash.feature;
 
+import me.dustin.crash.CrashPlugin;
 import me.dustin.crash.event.EventPlaySound;
 import me.dustin.events.core.EventListener;
 import me.dustin.events.core.annotate.EventPointer;
@@ -18,7 +19,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.vehicle.BoatEntity;
 import net.minecraft.network.packet.c2s.play.BoatPaddleStateC2SPacket;
 
-@Feature.Manifest(category = Feature.Category.MISC, description = "Tries to crash the server when you are in a boat. (By 0x150)")
 public class BoatCrash extends Feature {
 
     @Op(name = "Packet Count", min = 1, max = 1000, inc = 5)
@@ -31,7 +31,7 @@ public class BoatCrash extends Feature {
     private final BoatPaddleStateC2SPacket PACKET = new BoatPaddleStateC2SPacket(true, true);
 
     public BoatCrash() {
-        setFeatureCategory(Category.valueOf("CRASH"));
+        super(CrashPlugin.CRASH, "Tries to crash the server when you are in a boat. (By 0x150)");
     }
 
     @EventPointer

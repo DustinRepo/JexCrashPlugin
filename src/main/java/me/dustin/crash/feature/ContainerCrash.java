@@ -1,5 +1,6 @@
 package me.dustin.crash.feature;
 
+import me.dustin.crash.CrashPlugin;
 import me.dustin.crash.event.EventPlaySound;
 import me.dustin.events.core.EventListener;
 import me.dustin.events.core.annotate.EventPointer;
@@ -28,7 +29,6 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import org.lwjgl.glfw.GLFW;
 
-@Feature.Manifest(category = Feature.Category.MISC, description = "Lags/crashes servers by spamming container opening packets. Press escape to toggle.")
 public class ContainerCrash extends Feature {
 
     @Op(name = "Packet Count", min = 1, max = 1000, inc = 5)
@@ -39,7 +39,7 @@ public class ContainerCrash extends Feature {
     public boolean autoDisable = true;
 
     public ContainerCrash() {
-        setFeatureCategory(Category.valueOf("CRASH"));
+        super(CrashPlugin.CRASH, "Lags/crashes servers by spamming container opening packets. Press escape to toggle.");
     }
 
     @EventPointer
