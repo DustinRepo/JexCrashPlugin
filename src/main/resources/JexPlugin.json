@@ -1,8 +1,8 @@
 {
   "name": "Crash Plugin",
-  "version": "1.0",
+  "version": "${version}",
   "mainClass": "me.dustin.crash.CrashPlugin",
-  "mixins": "crashplugin.mixins.json",
+  "mixins": "${mixins}",
   "description": "Various server crashing methods. Pretty much copy + paste of Meteor Crash Addon",
   "icon": "assets/crash/icon.png",
   "authors": [

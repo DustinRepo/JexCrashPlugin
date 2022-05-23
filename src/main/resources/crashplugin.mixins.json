@@ -3,7 +3,7 @@
   "minVersion": "0.8",
   "compatibilityLevel": "JAVA_17",
   "package": "me.dustin.crash.mixin.impl",
-  "refmap": "JexCrashAddon-refmap.json",
+  "refmap": "${name}-refmap.json",
   "mixins": [
     "MixinClientWorld",
     "MixinLoginHelloC2SPacket",

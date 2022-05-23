@@ -3,19 +3,21 @@ plugins {
     id 'java'
 }
 
-group 'org.example'
-version '1.0-SNAPSHOT'
-
-repositories {
-    mavenCentral()
-}
-
 dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
     modImplementation files('lib/jex-plugin-dev.jar')
+}
+
+processResources {
+    filesMatching("JexPlugin.json") {
+        expand "version": project.plugin_version, "mixins": project.mixins_name
+    }
+    filesMatching("${project.mixins_name}") {
+        expand "name": project.plugin_name
+    }
 }
 
 jar {
