@@ -5,13 +5,11 @@ import me.dustin.crash.event.EventPlaySound;
 import me.dustin.events.core.EventListener;
 import me.dustin.events.core.annotate.EventPointer;
 import me.dustin.jex.event.filters.PlayerPacketsFilter;
-import me.dustin.jex.event.filters.ServerPacketFilter;
 import me.dustin.jex.event.filters.TickFilter;
 import me.dustin.jex.event.misc.EventTick;
-import me.dustin.jex.event.packet.EventPacketReceive;
 import me.dustin.jex.event.player.EventPlayerPackets;
 import me.dustin.jex.feature.mod.core.Feature;
-import me.dustin.jex.feature.option.annotate.Op;
+import me.dustin.jex.feature.property.Property;
 import me.dustin.jex.helper.misc.ChatHelper;
 import me.dustin.jex.helper.misc.Wrapper;
 import me.dustin.jex.helper.network.NetworkHelper;
@@ -21,12 +19,21 @@ import net.minecraft.network.packet.c2s.play.BoatPaddleStateC2SPacket;
 
 public class BoatCrash extends Feature {
 
-    @Op(name = "Packet Count", min = 1, max = 1000, inc = 5)
-    public int packetCount = 100;
-    @Op(name = "No Sound")
-    public boolean noSound = true;
-    @Op(name = "Auto Disable")
-    public boolean autoDisable = true;
+    public final Property<Integer> packetCountProperty = new Property.PropertyBuilder<Integer>(this.getClass())
+            .name("Packet Count")
+            .value(100)
+            .min(1)
+            .max(1000)
+            .inc(5)
+            .build();
+    public final Property<Boolean> noSoundProperty = new Property.PropertyBuilder<Boolean>(this.getClass())
+            .name("No Sound")
+            .value(true)
+            .build();
+    public final Property<Boolean> autoDisableProperty = new Property.PropertyBuilder<Boolean>(this.getClass())
+            .name("Auto Disable")
+            .value(true)
+            .build();
 
     private final BoatPaddleStateC2SPacket PACKET = new BoatPaddleStateC2SPacket(true, true);
 
@@ -42,20 +49,20 @@ public class BoatCrash extends Feature {
             setState(false);
             return;
         }
-        for (int i = 0; i < packetCount; i++) {
+        for (int i = 0; i < packetCountProperty.value(); i++) {
             NetworkHelper.INSTANCE.sendPacket(PACKET);
         }
     }, new PlayerPacketsFilter(EventPlayerPackets.Mode.PRE));
 
     @EventPointer
     private final EventListener<EventTick> eventTickEventListener = new EventListener<>(eventTick -> {
-        if (Wrapper.INSTANCE.getWorld() == null || Wrapper.INSTANCE.getLocalPlayer() == null && autoDisable)
+        if (Wrapper.INSTANCE.getWorld() == null || Wrapper.INSTANCE.getLocalPlayer() == null && autoDisableProperty.value())
             setState(false);
     }, new TickFilter(EventTick.Mode.PRE));
 
     @EventPointer
     private final EventListener<EventPlaySound> eventPacketReceiveEventListener = new EventListener<>(eventPlaySound -> {
-        if (!noSound)
+        if (!noSoundProperty.value())
             return;
         String sound = eventPlaySound.getIdentifier().toString();
         if (sound.equalsIgnoreCase("minecraft:entity.boat.paddle_land") || sound.equalsIgnoreCase("minecraft:entity.boat.paddle_water"))

@@ -8,8 +8,7 @@ import me.dustin.jex.event.filters.TickFilter;
 import me.dustin.jex.event.misc.EventTick;
 import me.dustin.jex.event.player.EventPlayerPackets;
 import me.dustin.jex.feature.mod.core.Feature;
-import me.dustin.jex.feature.option.annotate.Op;
-import me.dustin.jex.feature.option.annotate.OpChild;
+import me.dustin.jex.feature.property.Property;
 import me.dustin.jex.helper.misc.StopWatch;
 import me.dustin.jex.helper.misc.Wrapper;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
@@ -20,16 +19,31 @@ import java.util.Random;
 
 public class MessageLagger extends Feature {
 
-    @Op(name = "Message length", min = 1, max = 1000)
-    public int messageLength = 200;
-    @Op(name = "Keep Sending")
-    public boolean keepSending;
-    @OpChild(name = "Delay (MS)", max = 1000, parent = "Keep Sending")
-    public int delay = 100;
-    @Op(name = "Whisper")
-    public boolean whisper;
-    @Op(name = "Auto Disable")
-    public boolean autoDisable = true;
+    public final Property<Integer> messageLengthProperty = new Property.PropertyBuilder<Integer>(this.getClass())
+            .name("Message Length")
+            .value(200)
+            .min(1)
+            .max(1000)
+            .build();
+    public final Property<Boolean> keepSendingProperty = new Property.PropertyBuilder<Boolean>(this.getClass())
+            .name("Keep Sending")
+            .value(false)
+            .build();
+    public final Property<Long> delayProperty = new Property.PropertyBuilder<Long>(this.getClass())
+            .name("Delay (MS)")
+            .value(100L)
+            .max(1000)
+            .parent(keepSendingProperty)
+            .depends(parent -> (boolean) parent.value())
+            .build();
+    public final Property<Boolean> whisperProperty = new Property.PropertyBuilder<Boolean>(this.getClass())
+            .name("Whisper")
+            .value(false)
+            .build();
+    public final Property<Boolean> autoDisableProperty = new Property.PropertyBuilder<Boolean>(this.getClass())
+            .name("Auto Disable")
+            .value(true)
+            .build();
 
     private final StopWatch stopWatch = new StopWatch();
     public MessageLagger() {
@@ -38,8 +52,8 @@ public class MessageLagger extends Feature {
 
     @Override
     public void onEnable() {
-        if (!keepSending && Wrapper.INSTANCE.getWorld() != null && Wrapper.INSTANCE.getLocalPlayer() != null) {
-            if (whisper)
+        if (!keepSendingProperty.value() && Wrapper.INSTANCE.getWorld() != null && Wrapper.INSTANCE.getLocalPlayer() != null) {
+            if (whisperProperty.value())
                 sendLagWhisper();
             else
                 sendLagMessage();
@@ -52,8 +66,8 @@ public class MessageLagger extends Feature {
 
     @EventPointer
     private final EventListener<EventPlayerPackets> eventPlayerPacketsEventListener = new EventListener<>(eventPlayerPackets -> {
-        if (stopWatch.hasPassed(delay) && keepSending) {
-            if (whisper)
+        if (stopWatch.hasPassed(delayProperty.value()) && keepSendingProperty.value()) {
+            if (whisperProperty.value())
                 sendLagWhisper();
             else
                 sendLagMessage();
@@ -63,7 +77,7 @@ public class MessageLagger extends Feature {
 
     @EventPointer
     private final EventListener<EventTick> eventTickEventListener = new EventListener<>(eventTick -> {
-        if (Wrapper.INSTANCE.getWorld() == null || Wrapper.INSTANCE.getLocalPlayer() == null && autoDisable)
+        if (Wrapper.INSTANCE.getWorld() == null || Wrapper.INSTANCE.getLocalPlayer() == null && autoDisableProperty.value())
             setState(false);
     }, new TickFilter(EventTick.Mode.PRE));
 
@@ -83,7 +97,7 @@ public class MessageLagger extends Feature {
 
     private String generateLagMessage() {
         StringBuilder message = new StringBuilder();
-        for (int i = 0; i < messageLength; i++) {
+        for (int i = 0; i < messageLengthProperty.value(); i++) {
             message.append((char) (Math.floor(Math.random() * 0x1D300) + 0x800));
         }
         return message.toString();

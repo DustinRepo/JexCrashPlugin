@@ -8,7 +8,7 @@ import me.dustin.jex.event.filters.TickFilter;
 import me.dustin.jex.event.misc.EventTick;
 import me.dustin.jex.event.player.EventPlayerPackets;
 import me.dustin.jex.feature.mod.core.Feature;
-import me.dustin.jex.feature.option.annotate.Op;
+import me.dustin.jex.feature.property.Property;
 import me.dustin.jex.helper.misc.ChatHelper;
 import me.dustin.jex.helper.misc.Wrapper;
 import me.dustin.jex.helper.network.NetworkHelper;
@@ -18,12 +18,24 @@ import net.minecraft.util.math.Vec3d;
 
 public class EntityCrash extends Feature {
 
-    @Op(name = "Speed", min = 1, max = 10000, inc = 100)
-    public int speed = 1400;
-    @Op(name = "Packet Count", min = 1, max = 50, inc = 1)
-    public int packetCount = 24;
-    @Op(name = "Auto Disable")
-    public boolean autoDisable = true;
+    public final Property<Integer> speedProperty = new Property.PropertyBuilder<Integer>(this.getClass())
+            .name("Speed")
+            .value(1400)
+            .min(1)
+            .max(10000)
+            .inc(100)
+            .build();
+    public final Property<Integer> packetCountProperty = new Property.PropertyBuilder<Integer>(this.getClass())
+            .name("Packet Count")
+            .value(24)
+            .min(1)
+            .max(50)
+            .inc(1)
+            .build();
+    public final Property<Boolean> autoDisableProperty = new Property.PropertyBuilder<Boolean>(this.getClass())
+            .name("Auto Disable")
+            .value(true)
+            .build();
 
     public EntityCrash() {
         super(CrashPlugin.CRASH, "Tries to crash the server when you are riding an entity. (By 0x150)");
@@ -37,9 +49,9 @@ public class EntityCrash extends Feature {
             setState(false);
             return;
         }
-        for (int i = 0; i < packetCount; i++) {
+        for (int i = 0; i < packetCountProperty.value(); i++) {
             Vec3d v = entity.getPos();
-            entity.setPos(v.x, v.y + speed, v.z);
+            entity.setPos(v.x, v.y + speedProperty.value(), v.z);
             VehicleMoveC2SPacket packet = new VehicleMoveC2SPacket(entity);
             NetworkHelper.INSTANCE.sendPacket(packet);
         }
@@ -47,7 +59,7 @@ public class EntityCrash extends Feature {
 
     @EventPointer
     private final EventListener<EventTick> eventTickEventListener = new EventListener<>(eventTick -> {
-        if (Wrapper.INSTANCE.getWorld() == null || Wrapper.INSTANCE.getLocalPlayer() == null && autoDisable)
+        if (Wrapper.INSTANCE.getWorld() == null || Wrapper.INSTANCE.getLocalPlayer() == null && autoDisableProperty.value())
             setState(false);
     }, new TickFilter(EventTick.Mode.PRE));
 }

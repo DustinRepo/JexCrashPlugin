@@ -8,7 +8,7 @@ import me.dustin.jex.event.filters.TickFilter;
 import me.dustin.jex.event.misc.EventTick;
 import me.dustin.jex.event.player.EventPlayerPackets;
 import me.dustin.jex.feature.mod.core.Feature;
-import me.dustin.jex.feature.option.annotate.Op;
+import me.dustin.jex.feature.property.Property;
 import me.dustin.jex.helper.misc.Wrapper;
 import me.dustin.jex.helper.network.NetworkHelper;
 import net.minecraft.network.packet.c2s.play.KeepAliveC2SPacket;
@@ -16,10 +16,17 @@ import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 
 public class PacketSpammer extends Feature {
 
-    @Op(name = "Packet Count", min = 1, max = 100, inc = 10)
-    public int packetCount = 15;
-    @Op(name = "Auto Disable")
-    public boolean autoDisable = true;
+    public Property<Integer> packetCountProperty = new Property.PropertyBuilder<Integer>(this.getClass())
+            .name("Packet Count")
+            .value(15)
+            .min(1)
+            .max(100)
+            .inc(10)
+            .build();
+    public final Property<Boolean> autoDisableProperty = new Property.PropertyBuilder<Boolean>(this.getClass())
+            .name("Auto Disable")
+            .value(true)
+            .build();
 
     public PacketSpammer() {
         super(CrashPlugin.CRASH, "Spams various packets to the server. Likely to get you kicked instantly. (By BleachDrinker420)");
@@ -27,7 +34,7 @@ public class PacketSpammer extends Feature {
 
     @EventPointer
     private final EventListener<EventPlayerPackets> eventPlayerPacketsEventListener = new EventListener<>(eventPlayerPackets -> {
-        for (int i = 0; i < packetCount; i++) {
+        for (int i = 0; i < packetCountProperty.value(); i++) {
             NetworkHelper.INSTANCE.sendPacket(new PlayerMoveC2SPacket.OnGroundOnly(Math.random() >= 0.5));
             NetworkHelper.INSTANCE.sendPacket(new KeepAliveC2SPacket((int) (Math.random() * 8)));
         }
@@ -35,7 +42,7 @@ public class PacketSpammer extends Feature {
 
     @EventPointer
     private final EventListener<EventTick> eventTickEventListener = new EventListener<>(eventTick -> {
-        if (Wrapper.INSTANCE.getWorld() == null || Wrapper.INSTANCE.getLocalPlayer() == null && autoDisable)
+        if (Wrapper.INSTANCE.getWorld() == null || Wrapper.INSTANCE.getLocalPlayer() == null && autoDisableProperty.value())
             setState(false);
     }, new TickFilter(EventTick.Mode.PRE));
 }

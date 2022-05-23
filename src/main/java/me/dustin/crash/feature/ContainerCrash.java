@@ -13,7 +13,7 @@ import me.dustin.jex.event.misc.EventSetScreen;
 import me.dustin.jex.event.misc.EventTick;
 import me.dustin.jex.event.player.EventPlayerPackets;
 import me.dustin.jex.feature.mod.core.Feature;
-import me.dustin.jex.feature.option.annotate.Op;
+import me.dustin.jex.feature.property.Property;
 import me.dustin.jex.helper.misc.Wrapper;
 import me.dustin.jex.helper.network.NetworkHelper;
 import me.dustin.jex.helper.world.WorldHelper;
@@ -32,12 +32,21 @@ import org.lwjgl.glfw.GLFW;
 
 public class ContainerCrash extends Feature {
 
-    @Op(name = "Packet Count", min = 1, max = 1000, inc = 5)
-    public int packetCount = 100;
-    @Op(name = "No Sound")
-    public boolean noSound = true;
-    @Op(name = "Auto Disable")
-    public boolean autoDisable = true;
+    public final Property<Integer> packetCountProperty = new Property.PropertyBuilder<Integer>(this.getClass())
+            .name("Packet Count")
+            .value(100)
+            .min(1)
+            .max(1000)
+            .inc(5)
+            .build();
+    public final Property<Boolean> noSoundProperty = new Property.PropertyBuilder<Boolean>(this.getClass())
+            .name("No Sound")
+            .value(true)
+            .build();
+    public final Property<Boolean> autoDisableProperty = new Property.PropertyBuilder<Boolean>(this.getClass())
+            .name("Auto Disable")
+            .value(true)
+            .build();
 
     public ContainerCrash() {
         super(CrashPlugin.CRASH, "Lags/crashes servers by spamming container opening packets. Press escape to toggle.");
@@ -54,7 +63,7 @@ public class ContainerCrash extends Feature {
                         BlockHitResult bhr = new BlockHitResult(new Vec3d(blockPos.getX(), blockPos.getY(), blockPos.getZ()), Direction.DOWN, blockPos, false);
                         int sequence = ((IWorldClient)Wrapper.INSTANCE.getWorld()).getPendingUpdateManager().incrementSequence().getSequence();
                         PlayerInteractBlockC2SPacket openPacket = new PlayerInteractBlockC2SPacket(Hand.MAIN_HAND, bhr, sequence);
-                        for (int i = 0; i < packetCount; i++) {
+                        for (int i = 0; i < packetCountProperty.value(); i++) {
                             NetworkHelper.INSTANCE.sendPacket(openPacket);
                         }
                     }
@@ -80,13 +89,13 @@ public class ContainerCrash extends Feature {
 
     @EventPointer
     private final EventListener<EventTick> eventTickEventListener = new EventListener<>(eventTick -> {
-        if (Wrapper.INSTANCE.getWorld() == null || Wrapper.INSTANCE.getLocalPlayer() == null && autoDisable)
+        if (Wrapper.INSTANCE.getWorld() == null || Wrapper.INSTANCE.getLocalPlayer() == null && autoDisableProperty.value())
             setState(false);
     }, new TickFilter(EventTick.Mode.PRE));
 
     @EventPointer
     private final EventListener<EventPlaySound> eventPacketReceiveEventListener = new EventListener<>(eventPlaySound -> {
-        if (!noSound)
+        if (!noSoundProperty.value())
             return;
         String sound = eventPlaySound.getIdentifier().toString();
         if (sound.equalsIgnoreCase("minecraft:block.chest.open") || sound.equalsIgnoreCase("minecraft:block.chest.close") || sound.equalsIgnoreCase("minecraft:block.shulker_box.open") || sound.equalsIgnoreCase("minecraft:block.shulker_box.close") || sound.equalsIgnoreCase("minecraft:block.enderchest.open") || sound.equalsIgnoreCase("minecraft:block.enderchest.close"))

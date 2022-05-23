@@ -9,7 +9,7 @@ import me.dustin.jex.event.filters.TickFilter;
 import me.dustin.jex.event.misc.EventTick;
 import me.dustin.jex.event.player.EventPlayerPackets;
 import me.dustin.jex.feature.mod.core.Feature;
-import me.dustin.jex.feature.option.annotate.Op;
+import me.dustin.jex.feature.property.Property;
 import me.dustin.jex.helper.misc.ChatHelper;
 import me.dustin.jex.helper.misc.Wrapper;
 import me.dustin.jex.helper.network.NetworkHelper;
@@ -24,10 +24,17 @@ import java.util.Random;
 
 public class NoComCrash extends Feature {
 
-    @Op(name = "Packet Count", min = 1, max = 100, inc = 10)
-    public int packetCount = 15;
-    @Op(name = "Auto Disable")
-    public boolean autoDisable = true;
+    public Property<Integer> packetCountProperty = new Property.PropertyBuilder<Integer>(this.getClass())
+            .name("Packet Count")
+            .value(15)
+            .min(1)
+            .max(100)
+            .inc(10)
+            .build();
+    public final Property<Boolean> autoDisableProperty = new Property.PropertyBuilder<Boolean>(this.getClass())
+            .name("Auto Disable")
+            .value(true)
+            .build();
 
     private final Random r = new Random();
 
@@ -38,7 +45,7 @@ public class NoComCrash extends Feature {
     @EventPointer
     private final EventListener<EventPlayerPackets> eventPlayerPacketsEventListener = new EventListener<>(eventPlayerPackets -> {
         try {
-            for (int i = 0; i < packetCount; i++) {
+            for (int i = 0; i < packetCountProperty.value(); i++) {
                 Vec3d cpos = pickRandomPos();
                 int sequence = ((IWorldClient)Wrapper.INSTANCE.getWorld()).getPendingUpdateManager().incrementSequence().getSequence();
                 PlayerInteractBlockC2SPacket packet = new PlayerInteractBlockC2SPacket(Hand.MAIN_HAND, new BlockHitResult(cpos, Direction.DOWN, new BlockPos(cpos), false), sequence);
@@ -52,7 +59,7 @@ public class NoComCrash extends Feature {
 
     @EventPointer
     private final EventListener<EventTick> eventTickEventListener = new EventListener<>(eventTick -> {
-        if (Wrapper.INSTANCE.getWorld() == null || Wrapper.INSTANCE.getLocalPlayer() == null && autoDisable)
+        if (Wrapper.INSTANCE.getWorld() == null || Wrapper.INSTANCE.getLocalPlayer() == null && autoDisableProperty.value())
             setState(false);
     }, new TickFilter(EventTick.Mode.PRE));
 

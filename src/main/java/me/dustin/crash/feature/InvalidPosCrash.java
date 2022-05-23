@@ -9,19 +9,28 @@ import me.dustin.jex.event.misc.EventTick;
 import me.dustin.jex.event.player.EventMove;
 import me.dustin.jex.event.player.EventPlayerPackets;
 import me.dustin.jex.feature.mod.core.Feature;
-import me.dustin.jex.feature.option.annotate.Op;
+import me.dustin.jex.feature.property.Property;
 import me.dustin.jex.helper.misc.Wrapper;
 import me.dustin.jex.helper.network.NetworkHelper;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 
 public class InvalidPosCrash extends Feature {
 
-    @Op(name = "Mode", all = {"Twenty Million", "Infinity", "TP", "Velt", "Switch"})
-    public String mode = "Twenty Million";
-    @Op(name = "Packet Count", min = 1, max = 10000, inc = 10)
-    public int packetCount = 500;
-    @Op(name = "Auto Disable")
-    public boolean autoDisable = true;
+    public final Property<PosMode> modeProperty = new Property.PropertyBuilder<PosMode>(this.getClass())
+            .name("Mode")
+            .value(PosMode.TWENTY_MILLION)
+            .build();
+    public final Property<Integer> packetCountProperty = new Property.PropertyBuilder<Integer>(this.getClass())
+            .name("Packet Count")
+            .value(500)
+            .min(1)
+            .max(10000)
+            .inc(10)
+            .build();
+    public final Property<Boolean> autoDisableProperty = new Property.PropertyBuilder<Boolean>(this.getClass())
+            .name("Auto Disable")
+            .value(true)
+            .build();
 
     private boolean switchBl = false;
     public InvalidPosCrash() {
@@ -31,17 +40,17 @@ public class InvalidPosCrash extends Feature {
     @Override
     public void onEnable() {
         if (Wrapper.INSTANCE.getWorld() != null && Wrapper.INSTANCE.getLocalPlayer() != null) {
-            switch(mode.toLowerCase()) {
-                case "twenty million" -> {
+            switch(modeProperty.value()) {
+                case TWENTY_MILLION -> {
                     NetworkHelper.INSTANCE.sendPacket(new PlayerMoveC2SPacket.PositionAndOnGround(20000000, 255, 20000000, true));
                     setState(false);
                 }
-                case "infinity" -> {
+                case INFINITY -> {
                     NetworkHelper.INSTANCE.sendPacket(new PlayerMoveC2SPacket.PositionAndOnGround(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, true));
                     NetworkHelper.INSTANCE.sendPacket(new PlayerMoveC2SPacket.PositionAndOnGround(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, true));
                     setState(false);
                 }
-                case "tp" -> {
+                case TP -> {
                     NetworkHelper.INSTANCE.sendPacket(new PlayerMoveC2SPacket.PositionAndOnGround(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, true));
                 }
             }
@@ -51,18 +60,18 @@ public class InvalidPosCrash extends Feature {
 
     @EventPointer
     private final EventListener<EventPlayerPackets> eventPlayerPacketsEventListener = new EventListener<>(eventPlayerPackets -> {
-        switch (mode.toLowerCase()) {
-            case "tp" -> {
-                for (double i = 0; i < packetCount; i++) {
+        switch (modeProperty.value()) {
+            case TP -> {
+                for (double i = 0; i < packetCountProperty.value(); i++) {
                     NetworkHelper.INSTANCE.sendPacket(new PlayerMoveC2SPacket.PositionAndOnGround(Wrapper.INSTANCE.getLocalPlayer().getX(), Wrapper.INSTANCE.getLocalPlayer().getY() + (i * 9), Wrapper.INSTANCE.getLocalPlayer().getZ(), true));
                 }
-                for (double i = 0; i < packetCount * 10; i++) {
-                    NetworkHelper.INSTANCE.sendPacket(new PlayerMoveC2SPacket.PositionAndOnGround(Wrapper.INSTANCE.getLocalPlayer().getX(), Wrapper.INSTANCE.getLocalPlayer().getY() + (i * packetCount), Wrapper.INSTANCE.getLocalPlayer().getZ() + (i * 9), true));
+                for (double i = 0; i < packetCountProperty.value() * 10; i++) {
+                    NetworkHelper.INSTANCE.sendPacket(new PlayerMoveC2SPacket.PositionAndOnGround(Wrapper.INSTANCE.getLocalPlayer().getX(), Wrapper.INSTANCE.getLocalPlayer().getY() + (i * packetCountProperty.value()), Wrapper.INSTANCE.getLocalPlayer().getZ() + (i * 9), true));
                 }
             }
-            case "velt" -> {
+            case VELT -> {
                 if (Wrapper.INSTANCE.getLocalPlayer().age < 100) {
-                    for (int i = 0; i < packetCount; i++) {
+                    for (int i = 0; i < packetCountProperty.value(); i++) {
                         NetworkHelper.INSTANCE.sendPacket(new PlayerMoveC2SPacket.PositionAndOnGround(Wrapper.INSTANCE.getLocalPlayer().getX(), Wrapper.INSTANCE.getLocalPlayer().getY() - 1.0D, Wrapper.INSTANCE.getLocalPlayer().getZ(), false));
                         NetworkHelper.INSTANCE.sendPacket(new PlayerMoveC2SPacket.PositionAndOnGround(Wrapper.INSTANCE.getLocalPlayer().getX(), Double.MAX_VALUE, Wrapper.INSTANCE.getLocalPlayer().getZ(), false));
                         NetworkHelper.INSTANCE.sendPacket(new PlayerMoveC2SPacket.PositionAndOnGround(Wrapper.INSTANCE.getLocalPlayer().getX(), Wrapper.INSTANCE.getLocalPlayer().getY() - 1.0D, Wrapper.INSTANCE.getLocalPlayer().getZ(), false));
@@ -74,7 +83,7 @@ public class InvalidPosCrash extends Feature {
 
     @EventPointer
     private final EventListener<EventMove> eventMoveEventListener = new EventListener<>(eventMove -> {
-       if (mode.equalsIgnoreCase("Switch")) {
+       if (modeProperty.value() == PosMode.SWITCH) {
            if (switchBl) {
                eventMove.setX(Double.MIN_VALUE);
                eventMove.setZ(Double.MIN_VALUE);
@@ -90,7 +99,11 @@ public class InvalidPosCrash extends Feature {
 
     @EventPointer
     private final EventListener<EventTick> eventTickEventListener = new EventListener<>(eventTick -> {
-        if (Wrapper.INSTANCE.getWorld() == null || Wrapper.INSTANCE.getLocalPlayer() == null && autoDisable)
+        if (Wrapper.INSTANCE.getWorld() == null || Wrapper.INSTANCE.getLocalPlayer() == null && autoDisableProperty.value())
             setState(false);
     }, new TickFilter(EventTick.Mode.PRE));
+
+    public enum PosMode {
+        TWENTY_MILLION, INFINITY, TP, VELT, SWITCH
+    }
 }
