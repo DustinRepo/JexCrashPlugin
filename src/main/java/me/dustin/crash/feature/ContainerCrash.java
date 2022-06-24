@@ -1,7 +1,6 @@
 package me.dustin.crash.feature;
 
 import me.dustin.crash.CrashPlugin;
-import me.dustin.crash.event.EventPlaySound;
 import me.dustin.crash.mixin.interf.IWorldClient;
 import me.dustin.events.core.EventListener;
 import me.dustin.events.core.annotate.EventPointer;
@@ -12,6 +11,7 @@ import me.dustin.jex.event.misc.EventKeyPressed;
 import me.dustin.jex.event.misc.EventSetScreen;
 import me.dustin.jex.event.misc.EventTick;
 import me.dustin.jex.event.player.EventPlayerPackets;
+import me.dustin.jex.event.world.EventPlaySound;
 import me.dustin.jex.feature.mod.core.Feature;
 import me.dustin.jex.feature.property.Property;
 import me.dustin.jex.helper.misc.Wrapper;
